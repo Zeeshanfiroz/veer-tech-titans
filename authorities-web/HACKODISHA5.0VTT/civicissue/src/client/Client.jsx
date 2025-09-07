@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: '/', // change to 'http://localhost:5000' if backend runs elsewhere
+  baseURL: 'http://51.20.18.40:8080/', // change to 'http://localhost:5000' if backend runs elsewhere
   headers: { 'Content-Type': 'application/json' },
 });
 
