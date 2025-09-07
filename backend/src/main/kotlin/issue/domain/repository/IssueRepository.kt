@@ -9,5 +9,6 @@ interface IssueRepository {
     suspend fun findById(id: String): Either<Failure, IssueModel>
     suspend fun insert(issue: IssueModel): Either<Failure, IssueModel>
     suspend fun update(id: String, status: String): Either<Failure, Unit>
+    suspend fun findUserProblems(email: String): Either<Failure, List<IssueModel>>
 
 }

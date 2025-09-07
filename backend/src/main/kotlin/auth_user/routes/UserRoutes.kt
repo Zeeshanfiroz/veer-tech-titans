@@ -5,6 +5,7 @@ import auth_user.domain.repository.UserRepository
 import com.spender.core.either.Either
 import com.spender.core.hash.PasswordHasher
 import com.spender.core.request_model.EmailRequest
+import com.spender.core.response_model.ResponseModel
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
@@ -13,7 +14,6 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import org.koin.ktor.ext.inject
-import kotlin.to
 
 fun Route.userRoutes() {
     val repository by inject<UserRepository>()
@@ -26,19 +26,33 @@ fun Route.userRoutes() {
             if (res is Either.Right) {
                 val isVerified = passwordHasher.verify(user.password!!, res.value.password!!)
                 if (isVerified) {
-                    call.respond(mapOf("Success" to "Successfully logged in"))
+                    call.respond(ResponseModel(
+                        success = true,
+                        message = "Successfully logged in"
+                    ))
                 } else {
                     call.respond(HttpStatusCode.Unauthorized,
-                        mapOf("error" to "Unauthorized")
+                        ResponseModel(
+                            success = false,
+                            message = "Unauthorized"
+                        )
                     )
                 }
             } else {
                 val newUser = repository.insert(user.copy(password = passwordHasher.hash(user.password!!)))
                 if (newUser is Either.Right) {
-                    call.respond(mapOf("Success" to "Successfully registered"))
+                    call.respond(
+                        ResponseModel(
+                            success = true,
+                            message = "Successfully registered"
+                        )
+                    )
                 } else {
                     call.respond(HttpStatusCode.InternalServerError,
-                        mapOf("error" to "Internal Server Error")
+                        ResponseModel(
+                            success = false,
+                            message = "Internal Server Error"
+                        )
                     )
                 }
             }
@@ -47,10 +61,19 @@ fun Route.userRoutes() {
             val email = call.receive<EmailRequest>().email
             val res = repository.findByEmail(email)
             if (res is Either.Right) {
-                call.respond(res.value.copy(password = null))
+                call.respond(
+                    ResponseModel(
+                        success = true,
+                        message = "Successfully fetched user",
+                        data = res.value.copy(password = null)
+                    )
+                )
             } else {
                 call.respond(HttpStatusCode.Unauthorized,
-                    mapOf("error" to "Unauthorized")
+                    ResponseModel(
+                        success = false,
+                        message = "Unauthorized"
+                    )
                 )
             }
         }

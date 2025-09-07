@@ -1,6 +1,7 @@
 package com.spender.issue.routes
 
 import com.spender.core.either.Either
+import com.spender.core.request_model.EmailRequest
 import com.spender.issue.domain.models.IssueModel
 import com.spender.issue.domain.repository.IssueRepository
 import io.ktor.http.HttpStatusCode
@@ -31,7 +32,7 @@ fun Route.issueRoutes() {
     val repository by inject<IssueRepository>()
 
     route("/api") {
-        get("/issues") {
+        get("/problems") {
             val details = call.receive<IssueDetails>()
             val res = repository.findByDetails(details.state, details.district, details.block)
             if (res is Either.Right) {
@@ -40,7 +41,7 @@ fun Route.issueRoutes() {
                 call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "Unauthorized"))
             }
         }
-        get("/issue/{id}") {
+        get("/problem/{id}") {
             val id = call.receive<String>()
             val res = repository.findById(id)
             if (res is Either.Right) {
@@ -51,7 +52,7 @@ fun Route.issueRoutes() {
                 )
             }
         }
-        put("/issue/{id}") {
+        put("/problem/{id}") {
             val id = call.queryParameters["id"]
             val issue = call.receive<IssueResponse>()
             val res = repository.update(id!!, issue.status)
@@ -63,7 +64,7 @@ fun Route.issueRoutes() {
                 )
             }
         }
-        post("/new-issue") {
+        post("/user/new-problem") {
             val issue = call.receive<IssueModel>()
             val res = repository.insert(issue)
             if (res is Either.Right) {
@@ -72,6 +73,15 @@ fun Route.issueRoutes() {
                 call.respond(HttpStatusCode.Unauthorized,
                     mapOf("error" to "Unauthorized")
                 )
+            }
+        }
+        post("/user/problems") {
+            val details = call.receive<EmailRequest>().email
+            val res = repository.findUserProblems(details)
+            if (res is Either.Right) {
+                call.respond(res.value)
+            } else {
+                call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "Unauthorized"))
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.spender.issue.infrastructure.repository
 
+import auth_user.domain.models.UserModel
 import com.mongodb.client.MongoDatabase
 import com.mongodb.client.model.Filters
 import com.mongodb.client.model.Updates.set
@@ -16,8 +17,10 @@ class IssueRepositoryImpl(
 ): IssueRepository {
 
     companion object {
+        private const val USER_COLLECTION = "issues"
         private const val ISSUE_COLLECTION = "issues"
     }
+    private val userCollection = mongoDatabase.getCollection(USER_COLLECTION)
     private val collection = mongoDatabase.getCollection(ISSUE_COLLECTION)
     override suspend fun findByDetails(
         state: String,
@@ -72,6 +75,19 @@ class IssueRepositoryImpl(
             return@withContext Either.Left(ServerFailure("Error updating issue"))
         } catch (e: Exception) {
             return@withContext Either.Left(ServerFailure("Error updating issue: ${e.message}"))
+        }
+    }
+
+    override suspend fun findUserProblems(email: String): Either<Failure, List<IssueModel>> {
+        try {
+            val user = userCollection.find(Filters.eq("email", email)).first()
+            if (user == null) {
+                return Either.Left(ServerFailure("User not found"))
+            }
+            val issues = collection.find(Filters.eq("userId", UserModel.fromDocument(user).id)).toList()
+            return Either.Right(issues.map { IssueModel.fromDocument(it) })
+        } catch (e: Exception) {
+            return Either.Left(ServerFailure("Error finding user problems: ${e.message}"))
         }
     }
 }
