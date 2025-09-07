@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
+import api from "../client/Client";
 
 function Complainttable({ complaints, filters, onViewIssue  }) {
   const [currentpage, setcurrentpage] = useState(1);
   const complaintsperpage = 6;
+
+  
 
   // ✅ Filter complaints based on search, status, priority, date range
   const filteredcomplaints = complaints.filter((c) => {

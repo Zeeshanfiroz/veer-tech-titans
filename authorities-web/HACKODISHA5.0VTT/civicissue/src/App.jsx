@@ -1,83 +1,113 @@
-import { useState } from "react";
+// App.jsx
+import { useState, useEffect } from "react";
+import api from "./client/Client"; // Axios instance
 
-import Complainttable from "./components/complainttable";
+// Components
+import ComplaintManagementSystem from "./components/complaintManagementSystem.jsx";
+import Login from "./components/login";
 import Header from "./components/header";
-import Searchbar from "./components/searchbar";
 import Sidebar from "./components/sidebar";
+import Searchbar from "./components/searchbar";
 import Statcard from "./components/statcard";
-
-import ComplaintManagementSystem from "./components/login";
+import Complainttable from "./components/complainttable";
 import OfficerProfile from "./components/profile";
 import IssueCard from "./components/IssueCard";
-import { complaints } from "./complaintsData"; // Import complaints data
 
 function App() {
+const [filters, setfilters] = useState({
+searchterm: "",
+issuetype: "All Issue Types",
+Status: "All Status",
+daterange: "All Time",
+priority: "All Priorities",
+});
 
-  const handleLogout = () => {
-    setLoggedIn(false);
-    setcondition("dashboard"); 
-  };
+const [loggedIn, setLoggedIn] = useState(false);
+const [condition, setcondition] = useState("dashboard");
+const [selectedIssue, setSelectedIssue] = useState(null);
+const [complaintsFromApi, setComplaints] = useState([]);
 
-  const [filters, setfilters] = useState({
-    searchterm: "",
-    issuetype: "All Issue Types",
-    Status: "All Status",
-    daterange: "All Time",
-    priority: "All Priorities",
-  });
+// ✅ Login success → just update local state
+const handleLoginSuccess = () => {
+setLoggedIn(true);
+};
 
-  const [loggedIn, setLoggedIn] = useState(false); 
-  const [condition, setcondition] = useState("dashboard");
+// ✅ Logout resets state
+const handleLogout = () => {
+setLoggedIn(false);
+setcondition("dashboard");
+localStorage.removeItem("token");
+};
 
-  // Handle Login
-  const handleLogin = () => setLoggedIn(true);
+// ✅ Fetch complaints from backend
+const fetchData = async () => {
+try {
+const response = await api.get("/api/complaints");
+setComplaints(response.data);
+} catch (error) {
+console.error("Error fetching complaints:", error);
+}
+};
 
-  const [selectedIssue, setSelectedIssue] = useState(null);
-  // When an issue is selected open IssueCard
-  if (selectedIssue) {
-    return (
-      <div>
-        <Header onLogout={handleLogout} />
-        <div className="flex-grow-1 p-3" style={{ marginTop: "10px" }}>
-          <IssueCard issue={selectedIssue} onBack={() => setSelectedIssue(null)} />
-        </div>
-      </div>
-    );
-  }
+// ✅ Fetch on first load
+useEffect(() => {
+fetchData();
+}, []);
 
-  // ✅ Calculate stats dynamically from complaints
-  const totalComplaints = complaints.length;
-  const resolvedCount = complaints.filter(c => c.status === "Resolved").length;
-  const inProgressCount = complaints.filter(c => c.status === "In Progress").length;
-  const pendingCount = complaints.filter(c => c.status === "Pending").length;
+// ✅ If not logged in, show login screen
+if (!loggedIn) {
+return <ComplaintManagementSystem onLogin={handleLoginSuccess} />;
+}
 
-  if (!loggedIn) return <ComplaintManagementSystem onLogin={handleLogin} />;
+// ✅ If user clicked a complaint, show IssueCard
+if (selectedIssue) {
+return (
+<div>
+<Header onLogout={handleLogout} />
+<div className="flex-grow-1 p-3" style={{ marginTop: "10px" }}>
+<IssueCard
+issue={selectedIssue}
+onBack={() => setSelectedIssue(null)}
+onUpdate={fetchData} // Refetch after update
+/>
+</div>
+</div>
+);
+}
 
-  return (
-    <div>
-      <Header onLogout={handleLogout} />
-      <div className="d-flex">
-        <Sidebar onmenuselect={setcondition} className="sidebar-fixed" />
-        <div className="flex-grow-1 p-3" style={{ marginTop: "10px" }}>
-          {condition === "dashboard" && (
-            <div className="dashboard-page">
-              <Searchbar filters={filters} setfilters={setfilters} />
-              <div className="d-flex justify-content-around flex-wrap statcards-row w-100">
-                <Statcard icon="bi-clipboard-data" title="Total Complaints" count={totalComplaints} />
-                <Statcard icon="bi-check-circle-fill text-success" title="Resolved" count={resolvedCount} />
-                <Statcard icon="bi-hourglass-split text-warning" title="In Progress" count={inProgressCount} />
-                <Statcard icon="bi-exclamation-triangle-fill text-danger" title="Pending" count={pendingCount} /> 
-              </div>
-              {/* <Complainttable complaints={complaints} filters={filters} /> */}
-               <Complainttable complaints={complaints} filters={filters} onViewIssue={setSelectedIssue} />
-            </div>
-          )}
+// ✅ Calculate dashboard stats
+const totalComplaints = complaintsFromApi.length;
+const resolvedCount = complaintsFromApi.filter((c) => c.status === "Resolved").length;
+const inProgressCount = complaintsFromApi.filter((c) => c.status === "In Progress").length;
+const pendingCount = complaintsFromApi.filter((c) => c.status === "Pending").length;
 
-          {condition === "profile" && <OfficerProfile />}
-        </div>
-      </div>
+// ✅ Main dashboard layout
+return (
+<div>
+<Header onLogout={handleLogout} />
+<div className="d-flex">
+<Sidebar onmenuselect={setcondition} className="sidebar-fixed" />
+<div className="flex-grow-1 p-3" style={{ marginTop: "10px" }}>
+{condition === "dashboard" && (
+<>
+<Searchbar filters={filters} setfilters={setfilters} />
+<div className="d-flex justify-content-around flex-wrap statcards-row w-100">
+<Statcard icon="bi-clipboard-data" title="Total Complaints" count={totalComplaints} />
+<Statcard icon="bi-check-circle-fill text-success" title="Resolved" count={resolvedCount} />
+<Statcard icon="bi-hourglass-split text-warning" title="In Progress" count={inProgressCount} />
+<Statcard icon="bi-exclamation-triangle-fill text-danger" title="Pending" count={pendingCount} />
+</div>
+<Complainttable complaints={complaintsFromApi} filters={filters} onViewIssue={setSelectedIssue} />
+</>
+)}
+
+      {condition === "profile" && <OfficerProfile />}
     </div>
-  );
+  </div>
+</div>
+
+
+);
 }
 
 export default App;
