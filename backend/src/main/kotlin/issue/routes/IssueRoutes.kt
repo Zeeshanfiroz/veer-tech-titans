@@ -32,7 +32,7 @@ fun Route.issueRoutes() {
     val repository by inject<IssueRepository>()
 
     route("/api") {
-        get("/problems") {
+        get("/complaints") {
             val details = call.receive<IssueDetails>()
             val res = repository.findByDetails(details.state, details.district, details.block)
             if (res is Either.Right) {
@@ -41,8 +41,8 @@ fun Route.issueRoutes() {
                 call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "Unauthorized"))
             }
         }
-        get("/problem/{id}") {
-            val id = call.receive<String>()
+        get("/complaint/{id}") {
+            val id = call.queryParameters["id"]!!
             val res = repository.findById(id)
             if (res is Either.Right) {
                 call.respond(res.value)
@@ -52,7 +52,7 @@ fun Route.issueRoutes() {
                 )
             }
         }
-        put("/problem/{id}") {
+        put("/complaint/{id}") {
             val id = call.queryParameters["id"]
             val issue = call.receive<IssueResponse>()
             val res = repository.update(id!!, issue.status)

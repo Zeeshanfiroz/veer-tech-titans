@@ -14,6 +14,8 @@ data class IssueModel(
     val id: ObjectId? = null,
     @Serializable(with = ObjectIdSerializer::class)
     val userId: ObjectId? = null,
+    val title: String = "Road Accident",
+    val description: String = "The road is damaged and needs repair.",
     val issue: String = "Road Damage",
     val state: String = "Tamil Nadu",
     val district: String = "Chennai",
@@ -23,7 +25,6 @@ data class IssueModel(
     val date: String = "2023-05-01",
     val isVerified: Boolean = false,
     val photoUrls: List<String> = listOf("https://example.com/photo1.jpg", "https://example.com/photo2.jpg"),
-    val description: String = "The road is damaged and needs repair.",
 ) {
     fun toDocument(): Document {
         val jsonString = Json.encodeToString(this)
