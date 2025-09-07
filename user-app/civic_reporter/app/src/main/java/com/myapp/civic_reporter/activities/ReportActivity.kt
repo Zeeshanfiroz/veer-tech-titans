@@ -26,8 +26,11 @@ import java.io.File
 
 class ReportActivity : AppCompatActivity() {
 
-    private lateinit var imagePreview: ImageView
+    private lateinit var imageLinks: EditText
     private lateinit var editTitle: EditText
+    private lateinit var editState: EditText
+    private lateinit var editDistrict: EditText
+    private lateinit var editBlock: EditText
     private lateinit var editDescription: EditText
     private lateinit var spinnerCategory: AutoCompleteTextView
     private lateinit var textLocation: TextView
@@ -46,17 +49,6 @@ class ReportActivity : AppCompatActivity() {
     private val categories = arrayOf("Pothole", "Streetlight", "Trash/Garbage", "Road Damage", "Water Issue", "Other")
 
     // Camera launcher
-    private val takePictureLauncher = registerForActivityResult(
-        ActivityResultContracts.TakePicture()
-    ) { success ->
-        if (success && currentImageFile != null) {
-            Glide.with(this)
-                .load(currentImageFile)
-                .into(imagePreview)
-            textTakePhoto.visibility = View.GONE
-            imagePreview.visibility = View.VISIBLE
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -97,14 +89,16 @@ class ReportActivity : AppCompatActivity() {
     }
 
     private fun initializeViews() {
-        imagePreview = findViewById(R.id.imagePreview)
+        imageLinks = findViewById(R.id.editPhotoLinks)
         editTitle = findViewById(R.id.editTitle)
+        editState = findViewById(R.id.editState)
+        editDistrict = findViewById(R.id.editDistrict)
+        editBlock = findViewById(R.id.editBlock)
         editDescription = findViewById(R.id.editDescription)
         spinnerCategory = findViewById(R.id.spinnerCategory)
         textLocation = findViewById(R.id.textLocation)
         buttonSubmit = findViewById(R.id.buttonSubmit)
         progressBar = findViewById(R.id.progressBar)
-        textTakePhoto = findViewById(R.id.textTakePhoto)
     }
 
     private fun setupHelpers() {
@@ -118,27 +112,9 @@ class ReportActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
-        findViewById<View>(R.id.cardImagePreview).setOnClickListener {
-            takePhoto()
-        }
-
         buttonSubmit.setOnClickListener {
             submitReport()
         }
-    }
-
-    private fun takePhoto() {
-        currentImageFile = imageHelper.createImageFile()
-        if (currentImageFile == null) {
-            Toast.makeText(this, "Could not create image file", Toast.LENGTH_SHORT).show()
-            return
-        }
-        val imageUri = FileProvider.getUriForFile(
-            this,
-            "${packageName}.fileprovider",
-            currentImageFile!!
-        )
-        takePictureLauncher.launch(imageUri)
     }
 
     private fun getCurrentLocation() {
@@ -163,9 +139,18 @@ class ReportActivity : AppCompatActivity() {
     }
 
     private fun submitReport() {
+        val imageLinks = imageLinks.text.toString().trim().split(",")
         val title = editTitle.text.toString().trim()
         val description = editDescription.text.toString().trim()
         val category = spinnerCategory.text.toString()
+        val state = editState.text.toString().trim()
+        val district = editDistrict.text.toString().trim()
+        val block = editBlock.text.toString().trim()
+
+        if (imageLinks.isEmpty()) {
+            Toast.makeText(this, "Please enter photo links", Toast.LENGTH_SHORT).show()
+            return
+        }
 
         if (title.isEmpty()) {
             editTitle.error = "Title is required"
@@ -182,8 +167,18 @@ class ReportActivity : AppCompatActivity() {
             return
         }
 
-        if (currentImageFile == null) {
-            Toast.makeText(this, "Please take a photo", Toast.LENGTH_SHORT).show()
+        if (state.isEmpty()) {
+            editState.error = "State is required"
+            return
+        }
+
+        if (district.isEmpty()) {
+            editDistrict.error = "District is required"
+            return
+        }
+
+        if (block.isEmpty()) {
+            editBlock.error = "Block is required"
             return
         }
 
@@ -216,9 +211,13 @@ class ReportActivity : AppCompatActivity() {
                     return@launch
                 }
 
+                val linksBody = imageLinks.joinToString(",").toRequestBody("text/plain".toMediaTypeOrNull())
                 val titleBody = title.toRequestBody("text/plain".toMediaTypeOrNull())
                 val descriptionBody = description.toRequestBody("text/plain".toMediaTypeOrNull())
                 val categoryBody = category.toRequestBody("text/plain".toMediaTypeOrNull())
+                val stateBody = state.toRequestBody("text/plain".toMediaTypeOrNull())
+                val districtBody = district.toRequestBody("text/plain".toMediaTypeOrNull())
+                val blockBody = block.toRequestBody("text/plain".toMediaTypeOrNull())
                 val latitudeBody = currentLatitude.toString().toRequestBody("text/plain".toMediaTypeOrNull())
                 val longitudeBody = currentLongitude.toString().toRequestBody("text/plain".toMediaTypeOrNull())
                 val addressBody = currentAddress.toRequestBody("text/plain".toMediaTypeOrNull())
@@ -228,20 +227,20 @@ class ReportActivity : AppCompatActivity() {
                 val imagePart = MultipartBody.Part.createFormData("image", compressedImageFile.name, requestFile)
 
                 val response = RetrofitClient.apiService.submitReport(
+                    userIdBody,
                     titleBody,
                     descriptionBody,
                     categoryBody,
-                    latitudeBody,
-                    longitudeBody,
-                    addressBody,
-                    userIdBody,
-                    imagePart
+                    stateBody,
+                    districtBody,
+                    blockBody,
+                    linksBody,
                 )
 
                 progressBar.visibility = View.GONE
                 buttonSubmit.isEnabled = true
 
-                if (response.isSuccessful && response.body()?.success == true) {
+                if (response.isSuccessful) {
                     Toast.makeText(this@ReportActivity, "Report submitted successfully!", Toast.LENGTH_LONG).show()
                     finish()
                 } else {
@@ -262,18 +261,4 @@ class ReportActivity : AppCompatActivity() {
         currentImageFile?.let { outState.putString("currentImagePath", it.absolutePath) }
     }
 
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-        val path = savedInstanceState.getString("currentImagePath")
-        if (path != null) {
-            currentImageFile = File(path)
-            if (currentImageFile!!.exists()) {
-                Glide.with(this)
-                    .load(currentImageFile)
-                    .into(imagePreview)
-                textTakePhoto.visibility = View.GONE
-                imagePreview.visibility = View.VISIBLE
-            }
-        }
-    }
 }

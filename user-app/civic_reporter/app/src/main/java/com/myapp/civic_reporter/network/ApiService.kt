@@ -15,27 +15,27 @@ interface ApiService {
 
     // Login/Signup: /login/user (POST request)
     // The LoginRequest now supports both email and userId
-    @POST("login/user")
+    @POST("auth/login/user")
     suspend fun loginUser(@Body request: LoginRequest): Response<ApiResponse<LoginResponse>>
 
     @Multipart
     @POST("user/new-problem")
     suspend fun submitReport(
+        @Part("userId") userId: RequestBody,
         @Part("title") title: RequestBody,
         @Part("description") description: RequestBody,
-        @Part("category") category: RequestBody,
-        @Part("latitude") latitude: RequestBody,
-        @Part("longitude") longitude: RequestBody,
-        @Part("address") address: RequestBody,
-        @Part("user_id") userId: RequestBody,
-        @Part image: MultipartBody.Part?
+        @Part("issue") issue: RequestBody,
+        @Part("state") state: RequestBody,
+        @Part("district") district: RequestBody,
+        @Part("block") block: RequestBody,
+        @Part("photoUrls") photoLinks: RequestBody
     ): Response<ApiResponse<UploadResponse>>
 
 
     @POST("user/problems")
     suspend fun getUserReports(@Body request: ProblemListRequest): Response<ApiResponse<List<Report>>>
 
-    @POST("user/problems/{id}")
+    @POST("problem/{id}")
     suspend fun getProblemDetails(
         @Path("id") reportId: String,
         @Body request: ProblemListRequest

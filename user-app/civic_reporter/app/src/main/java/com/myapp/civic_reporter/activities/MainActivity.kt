@@ -147,7 +147,7 @@ class MainActivity : AppCompatActivity() {
                 val request = ProblemListRequest(userEmail)
                 val response = RetrofitClient.apiService.getUserReports(request)
 
-                if (response.isSuccessful && response.body()?.success == true) {
+                if (response.isSuccessful) {
                     val reports = response.body()?.data
                     if (reports != null) {
                         val totalCount = reports.size
