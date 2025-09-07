@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
-function Complainttable({ complaints, filters }) {
+function Complainttable({ complaints, filters, onViewIssue  }) {
   const [currentpage, setcurrentpage] = useState(1);
   const complaintsperpage = 6;
 
@@ -109,7 +109,13 @@ function Complainttable({ complaints, filters }) {
                   <td>{c.date}</td>
                   <td>{renderStatus(c.status)}</td>
                   <td>
-                    <button className="btn btn-sm btn-outline-primary me-2">
+                    {/* <button className="btn btn-sm btn-outline-primary me-2">
+                      <i className="bi bi-eye"></i>
+                    </button> */}
+                    <button
+                      className="btn btn-sm btn-outline-primary me-2"
+                      onClick={() => onViewIssue && onViewIssue(c)}
+                    >
                       <i className="bi bi-eye"></i>
                     </button>
                   </td>

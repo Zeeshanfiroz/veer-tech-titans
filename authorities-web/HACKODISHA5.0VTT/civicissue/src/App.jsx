@@ -8,10 +8,16 @@ import Statcard from "./components/statcard";
 
 import ComplaintManagementSystem from "./components/login";
 import OfficerProfile from "./components/profile";
-
+import IssueCard from "./components/IssueCard";
 import { complaints } from "./complaintsData"; // Import complaints data
 
 function App() {
+
+  const handleLogout = () => {
+    setLoggedIn(false);
+    setcondition("dashboard"); 
+  };
+
   const [filters, setfilters] = useState({
     searchterm: "",
     issuetype: "All Issue Types",
@@ -26,11 +32,18 @@ function App() {
   // Handle Login
   const handleLogin = () => setLoggedIn(true);
 
-  // Handle Logout
-  const handleLogout = () => {
-    setLoggedIn(false);
-    setcondition("dashboard"); 
-  };
+  const [selectedIssue, setSelectedIssue] = useState(null);
+  // When an issue is selected open IssueCard
+  if (selectedIssue) {
+    return (
+      <div>
+        <Header onLogout={handleLogout} />
+        <div className="flex-grow-1 p-3" style={{ marginTop: "10px" }}>
+          <IssueCard issue={selectedIssue} onBack={() => setSelectedIssue(null)} />
+        </div>
+      </div>
+    );
+  }
 
   // ✅ Calculate stats dynamically from complaints
   const totalComplaints = complaints.length;
@@ -55,7 +68,8 @@ function App() {
                 <Statcard icon="bi-hourglass-split text-warning" title="In Progress" count={inProgressCount} />
                 <Statcard icon="bi-exclamation-triangle-fill text-danger" title="Pending" count={pendingCount} /> 
               </div>
-              <Complainttable complaints={complaints} filters={filters} />
+              {/* <Complainttable complaints={complaints} filters={filters} /> */}
+               <Complainttable complaints={complaints} filters={filters} onViewIssue={setSelectedIssue} />
             </div>
           )}
 
