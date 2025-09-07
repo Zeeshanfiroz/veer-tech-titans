@@ -1,0 +1,218 @@
+<!-- res/layout/item_report.xml -->
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
+    app:strokeWidth="0dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Header Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dp"
+            android:paddingBottom="12dp"
+            android:gravity="center_vertical">
+
+            <!-- Report Image -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_marginEnd="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#E9ECEF">
+
+                <ImageView
+                    android:id="@+id/imageReport"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_image_placeholder"
+                    android:background="#F8F9FA" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Report Details -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <!-- Title and Status -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="4dp">
+
+                    <TextView
+                        android:id="@+id/textTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Report Title"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="#212529"
+                        android:maxLines="2"
+                        android:ellipsize="end" />
+
+                    <TextView
+                        android:id="@+id/textStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="SUBMITTED"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/white"
+                        android:background="@drawable/status_chip_submitted"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="4dp"
+                        android:layout_marginStart="8dp" />
+
+                </LinearLayout>
+
+                <!-- Category Chip -->
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipCategory"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Category"
+                    android:textSize="11sp"
+                    android:layout_marginBottom="6dp"
+                    app:chipCornerRadius="12dp"
+                    app:chipBackgroundColor="#E3F2FD"
+                    app:chipStrokeWidth="0dp"
+                    style="@style/Widget.MaterialComponents.Chip.Action" />
+
+                <!-- Location -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:src="@drawable/ic_location"
+                        android:tint="#6C757D"
+                        android:layout_marginEnd="4dp" />
+
+                    <TextView
+                        android:id="@+id/textAddress"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Address"
+                        android:textSize="12sp"
+                        android:textColor="#6C757D"
+                        android:maxLines="1"
+                        android:ellipsize="end" />
+
+                    <TextView
+                        android:id="@+id/textDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="2 days ago"
+                        android:textSize="11sp"
+                        android:textColor="#ADB5BD"
+                        android:layout_marginStart="8dp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Progress Indicator -->
+        <LinearLayout
+            android:id="@+id/layoutProgress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="16dp"
+            android:gravity="center_vertical">
+
+            <!-- Progress Steps -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <!-- Step 1: Submitted -->
+                <View
+                    android:id="@+id/stepSubmitted"
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:background="@drawable/progress_step_active" />
+
+                <View
+                    android:id="@+id/lineToProgress"
+                    android:layout_width="0dp"
+                    android:layout_height="2dp"
+                    android:layout_weight="1"
+                    android:background="#E9ECEF"
+                    android:layout_marginHorizontal="4dp" />
+
+                <!-- Step 2: In Progress -->
+                <View
+                    android:id="@+id/stepInProgress"
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:background="@drawable/progress_step_inactive" />
+
+                <View
+                    android:id="@+id/lineToResolved"
+                    android:layout_width="0dp"
+                    android:layout_height="2dp"
+                    android:layout_weight="1"
+                    android:background="#E9ECEF"
+                    android:layout_marginHorizontal="4dp" />
+
+                <!-- Step 3: Resolved -->
+                <View
+                    android:id="@+id/stepResolved"
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:background="@drawable/progress_step_inactive" />
+
+            </LinearLayout>
+
+            <!-- Action Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonViewDetails"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:text="View Details"
+                android:textSize="11sp"
+                android:layout_marginStart="16dp"
+                app:cornerRadius="16dp"
+                app:icon="@drawable/ic_arrow_forward"
+                app:iconSize="14dp"
+                app:iconGravity="textEnd"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

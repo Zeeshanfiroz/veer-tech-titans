@@ -1,0 +1,7 @@
+<resources>
+    <!-- Base application theme. -->
+    <style name="Theme.Civic_reporter" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your theme here. -->
+<!--         <item name="colorPrimary">@color/your_primary</item> -->
+    </style>
+</resources>
